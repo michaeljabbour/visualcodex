@@ -29,10 +29,11 @@ const ResponseArea: React.FC<ResponseAreaProps> = () => {
     // This would be implemented with a proper event system in a real app
     window.addResponse = addResponse;
     window.clearResponses = clearResponses;
-
+    
     return () => {
-      delete window.addResponse;
-      delete window.clearResponses;
+      // Mark properties as optional with the '?' operator to fix TypeScript errors
+      if (window.addResponse) delete window.addResponse;
+      if (window.clearResponses) delete window.clearResponses;
     };
   }, []);
 
@@ -56,8 +57,8 @@ const ResponseArea: React.FC<ResponseAreaProps> = () => {
 // Add these to the Window interface
 declare global {
   interface Window {
-    addResponse: (type: string, content: string) => void;
-    clearResponses: () => void;
+    addResponse?: (type: string, content: string) => void;
+    clearResponses?: () => void;
   }
 }
 
