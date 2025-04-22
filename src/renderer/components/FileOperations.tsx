@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import '../styles/file-operations.css';
 
+// Import the ElectronAPI interface explicitly
+import { ElectronAPI } from '../../shared/types';
+
 interface FileOperationsProps {
   approvalMode: string;
 }
@@ -149,7 +152,6 @@ const FileOperations: React.FC<FileOperationsProps> = ({ approvalMode }) => {
           </button>
         </div>
       </div>
-
       {needsApproval && (
         <div className="approval-prompt">
           <div className="approval-message">
@@ -168,7 +170,6 @@ const FileOperations: React.FC<FileOperationsProps> = ({ approvalMode }) => {
           </div>
         </div>
       )}
-
       {result && (
         <div className="operation-result">
           <h3>Result:</h3>
