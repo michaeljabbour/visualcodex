@@ -13,21 +13,35 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [showOperations, setShowOperations] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Load initial configuration
   useEffect(() => {
     const loadConfig = async () => {
       try {
+        console.log('App: Loading initial configuration...');
+        
+        // Check if window.api exists
+        if (!window.api) {
+          throw new Error('API not available. The preload script may not be loaded correctly.');
+        }
+        
+        console.log('App: API is available, fetching approval mode...');
         const mode = await window.api.getApprovalMode();
+        console.log('App: Approval mode loaded:', mode);
         if (mode) setApprovalMode(mode);
         
+        console.log('App: Fetching default model...');
         const model = await window.api.getConfig('defaultModel');
+        console.log('App: Default model loaded:', model);
         if (model) setSelectedModel(model);
         
+        console.log('App: Configuration loaded successfully');
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to load configuration:', error);
-        setIsInitialized(true);
+        console.error('App: Failed to load configuration:', error);
+        setError(error instanceof Error ? error.message : String(error));
+        setIsInitialized(true); // Still set initialized to true to show error message
       }
     };
     
@@ -40,6 +54,7 @@ const App: React.FC = () => {
       setApprovalMode(mode);
     } catch (error) {
       console.error('Failed to update approval mode:', error);
+      setError('Failed to update approval mode. Please try again.');
     }
   };
   
@@ -49,13 +64,14 @@ const App: React.FC = () => {
       setSelectedModel(model);
     } catch (error) {
       console.error('Failed to update model:', error);
+      setError('Failed to update model. Please try again.');
     }
   };
   
   const toggleSettings = () => {
     setIsSettingsOpen(!isSettingsOpen);
   };
-
+  
   const toggleOperations = () => {
     setShowOperations(!showOperations);
   };
@@ -65,6 +81,16 @@ const App: React.FC = () => {
       <div className="loading-container">
         <div className="loading-spinner"></div>
         <p>Loading VisualCodex...</p>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="error-container">
+        <h2>Error Loading Application</h2>
+        <p>{error}</p>
+        <p>Please check the console for more details or restart the application.</p>
       </div>
     );
   }

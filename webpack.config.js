@@ -79,6 +79,7 @@ module.exports = [
     plugins: [
       new HtmlWebpackPlugin({
         template: './src/renderer/index.html',
+        filename: 'index.html'
       }),
     ],
   },
