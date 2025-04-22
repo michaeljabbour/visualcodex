@@ -1,32 +1,27 @@
 import { ipcMain, dialog } from 'electron';
 import { spawn } from 'child_process';
-import * as path from 'path';
 import * as fs from 'fs';
-import ElectronStore from 'electron-store';
+import * as path from 'path';
 
-// Initialize store for app configuration
-const store = new ElectronStore({
-  name: 'visualcodex-config'
-});
-
-// Setup IPC handlers for open-codex integration
-export function setupOpenCodexIntegration() {
-  // Handler for executing commands through open-codex
-  ipcMain.handle('execute-open-codex', async (event, prompt, approvalMode) => {
+// Setup handlers for open-codex integration
+export function setupOpenCodexHandlers() {
+  // Execute open-codex command
+  ipcMain.handle('execute-open-codex', async (event, prompt: string, approvalMode: string) => {
     try {
-      const result = await executeOpenCodex(prompt, approvalMode);
+      const result = await executeOpenCodexCommand(prompt, approvalMode);
       return result;
     } catch (error) {
       console.error('Error executing open-codex:', error);
       return {
         success: false,
-        output: `Error: ${error.message || 'Unknown error occurred'}`
+        output: '',
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   });
 
-  // Handler for reading files
-  ipcMain.handle('read-file', async (event, filePath) => {
+  // Read file
+  ipcMain.handle('read-file', async (event, filePath: string) => {
     try {
       const content = await fs.promises.readFile(filePath, 'utf8');
       return {
@@ -37,13 +32,14 @@ export function setupOpenCodexIntegration() {
       console.error('Error reading file:', error);
       return {
         success: false,
-        error: error.message || 'Unknown error occurred'
+        content: '',
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   });
 
-  // Handler for writing files
-  ipcMain.handle('write-file', async (event, filePath, content) => {
+  // Write file
+  ipcMain.handle('write-file', async (event, filePath: string, content: string) => {
     try {
       await fs.promises.writeFile(filePath, content, 'utf8');
       return {
@@ -53,94 +49,117 @@ export function setupOpenCodexIntegration() {
       console.error('Error writing file:', error);
       return {
         success: false,
-        error: error.message || 'Unknown error occurred'
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   });
 
-  // Handler for selecting directory
+  // Get project files
+  ipcMain.handle('get-project-files', async (event, dirPath: string) => {
+    try {
+      const files = await getDirectoryContents(dirPath);
+      return {
+        success: true,
+        files
+      };
+    } catch (error) {
+      console.error('Error getting project files:', error);
+      return {
+        success: false,
+        files: [],
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  });
+
+  // Select directory
   ipcMain.handle('select-directory', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory']
     });
     
-    if (result.canceled) {
-      return { canceled: true };
-    }
-    
     return {
-      canceled: false,
-      directory: result.filePaths[0]
+      canceled: result.canceled,
+      directory: result.filePaths[0] || ''
     };
   });
 }
 
-// Function to execute open-codex CLI with the given prompt and approval mode
-async function executeOpenCodex(prompt, approvalMode) {
-  return new Promise((resolve, reject) => {
-    // Get API key from store
-    const apiProviders = store.get('apiProviders') || {};
-    const openaiApiKey = apiProviders['OpenAI'];
-    
-    if (!openaiApiKey) {
-      reject(new Error('OpenAI API key not found. Please add it in Settings.'));
-      return;
+// Execute open-codex command
+async function executeOpenCodexCommand(prompt: string, approvalMode: string): Promise<{success: boolean, output: string, error?: string}> {
+  return new Promise((resolve) => {
+    try {
+      // Get API key from config
+      const apiKey = process.env.OPENAI_API_KEY || '';
+      
+      // Set up environment variables
+      const env = {
+        ...process.env,
+        OPENAI_API_KEY: apiKey
+      };
+      
+      // Set up arguments
+      const args = [
+        prompt,
+        '--approval-mode', approvalMode
+      ];
+      
+      // Execute open-codex
+      const openCodexProcess = spawn('open-codex', args, {
+        env,
+        cwd: process.cwd(),
+        shell: true
+      });
+      
+      let output = '';
+      let errorOutput = '';
+      
+      openCodexProcess.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      openCodexProcess.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+      
+      openCodexProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve({
+            success: true,
+            output
+          });
+        } else {
+          resolve({
+            success: false,
+            output,
+            error: errorOutput || `Process exited with code ${code}`
+          });
+        }
+      });
+    } catch (error) {
+      resolve({
+        success: false,
+        output: '',
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
-
-    // Prepare environment variables
-    const env = {
-      ...process.env,
-      OPENAI_API_KEY: openaiApiKey
-    };
-
-    // Prepare command arguments
-    const args = [];
-    
-    if (approvalMode) {
-      args.push('--approval-mode', approvalMode);
-    }
-    
-    if (prompt) {
-      args.push(prompt);
-    }
-
-    // Spawn open-codex process
-    const openCodexProcess = spawn('open-codex', args, {
-      env,
-      cwd: process.cwd(),
-      shell: true
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    openCodexProcess.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    openCodexProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    openCodexProcess.on('close', (code) => {
-      if (code === 0) {
-        resolve({
-          success: true,
-          output: stdout,
-          exitCode: code
-        });
-      } else {
-        resolve({
-          success: false,
-          output: stdout,
-          error: stderr,
-          exitCode: code
-        });
-      }
-    });
-
-    openCodexProcess.on('error', (error) => {
-      reject(error);
-    });
   });
+}
+
+// Get directory contents
+async function getDirectoryContents(dirPath: string) {
+  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+  
+  return Promise.all(entries.map(async (entry) => {
+    const fullPath = path.join(dirPath, entry.name);
+    const stats = await fs.promises.stat(fullPath);
+    
+    return {
+      name: entry.name,
+      path: fullPath,
+      isDirectory: entry.isDirectory(),
+      size: stats.size,
+      modified: stats.mtime
+    };
+  }));
 }
