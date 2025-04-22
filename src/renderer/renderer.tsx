@@ -8,9 +8,22 @@ import './styles/enhancements.css';
 // Add error handling for the renderer process
 console.log('Renderer script starting...');
 
+// Define the window interface to include our custom property
+declare global {
+  interface Window {
+    reactRenderTimeout?: number;
+  }
+}
+
 try {
+  // Clear the timeout if it exists (set in index.html)
+  if (window.reactRenderTimeout) {
+    clearTimeout(window.reactRenderTimeout);
+    console.log('Cleared render timeout check');
+  }
+
   // Check if the API is available
-  if (!window.api) {
+  if (typeof window.api === 'undefined') {
     console.error('API not available in renderer. Preload script may not be loaded correctly.');
     // Display error directly in the DOM before React renders
     document.body.innerHTML = `

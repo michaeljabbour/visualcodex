@@ -1,6 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import * as path from 'path';
-import * as url from 'url';
 import * as fs from 'fs';
 import ElectronStore from 'electron-store';
 import { setupOpenCodexHandlers } from './open-codex-bridge';
@@ -56,13 +55,7 @@ function createWindow() {
   }
 
   // Load the index.html
-  mainWindow.loadURL(
-    url.format({
-      pathname: indexPath,
-      protocol: 'file:',
-      slashes: true
-    })
-  );
+  mainWindow.loadFile(indexPath);
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
@@ -190,5 +183,44 @@ function setupConfigHandlers() {
       canceled: result.canceled,
       directory: result.filePaths.length > 0 ? result.filePaths[0] : ''
     };
+  });
+
+  // Add handlers for file operations
+  ipcMain.handle('read-file', async (event, path) => {
+    console.log(`Reading file: ${path}`);
+    try {
+      const content = await fs.promises.readFile(path, 'utf8');
+      return { success: true, content };
+    } catch (error) {
+      console.error(`Error reading file ${path}:`, error);
+      return { success: false, error: String(error) };
+    }
+  });
+
+  ipcMain.handle('write-file', async (event, path, content) => {
+    console.log(`Writing file: ${path}`);
+    try {
+      await fs.promises.writeFile(path, content, 'utf8');
+      return { success: true };
+    } catch (error) {
+      console.error(`Error writing file ${path}:`, error);
+      return { success: false, error: String(error) };
+    }
+  });
+
+  ipcMain.handle('get-project-files', async (event, dirPath) => {
+    console.log(`Getting project files from: ${dirPath}`);
+    try {
+      const files = await fs.promises.readdir(dirPath, { withFileTypes: true });
+      const fileList = files.map(file => ({
+        name: file.name,
+        isDirectory: file.isDirectory(),
+        path: path.join(dirPath, file.name)
+      }));
+      return { success: true, files: fileList };
+    } catch (error) {
+      console.error(`Error getting project files from ${dirPath}:`, error);
+      return { success: false, error: String(error) };
+    }
   });
 }
