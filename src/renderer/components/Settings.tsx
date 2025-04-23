@@ -351,7 +351,90 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
             {activeSection === 'theme' && (
               <div className="settings-section">
                 <h3>Theme Settings</h3>
-                <p>Theme settings will be implemented in future versions.</p>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Appearance</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="settings-field">
+                      <label>Theme Mode</label>
+                      <div className="theme-selector">
+                        <button className="theme-option active">
+                          <div className="theme-preview light-theme"></div>
+                          <span>Light</span>
+                        </button>
+                        <button className="theme-option">
+                          <div className="theme-preview dark-theme"></div>
+                          <span>Dark</span>
+                        </button>
+                        <button className="theme-option">
+                          <div className="theme-preview system-theme"></div>
+                          <span>System</span>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="settings-field">
+                      <label>Accent Color</label>
+                      <div className="color-selector">
+                        <button className="color-option active" style={{ backgroundColor: '#3498db' }}></button>
+                        <button className="color-option" style={{ backgroundColor: '#2ecc71' }}></button>
+                        <button className="color-option" style={{ backgroundColor: '#e74c3c' }}></button>
+                        <button className="color-option" style={{ backgroundColor: '#9b59b6' }}></button>
+                        <button className="color-option" style={{ backgroundColor: '#f39c12' }}></button>
+                        <button className="color-option" style={{ backgroundColor: '#1abc9c' }}></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Editor Appearance</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="settings-field">
+                      <label>Font Family</label>
+                      <select className="settings-select" disabled>
+                        <option>Monospace</option>
+                        <option selected>Consolas</option>
+                        <option>Courier New</option>
+                        <option>Source Code Pro</option>
+                        <option>Fira Code</option>
+                      </select>
+                    </div>
+                    
+                    <div className="settings-field">
+                      <label>Line Height</label>
+                      <div className="range-slider">
+                        <input 
+                          type="range" 
+                          min="1" 
+                          max="2" 
+                          step="0.1" 
+                          value="1.5" 
+                          disabled
+                        />
+                        <span className="range-value">1.5</span>
+                      </div>
+                    </div>
+                    
+                    <div className="settings-field checkbox-field">
+                      <input type="checkbox" id="show-line-numbers" disabled checked />
+                      <label htmlFor="show-line-numbers">Show line numbers</label>
+                    </div>
+                    
+                    <div className="settings-field checkbox-field">
+                      <input type="checkbox" id="word-wrap" disabled checked />
+                      <label htmlFor="word-wrap">Word wrap</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-note">
+                  Note: These theme settings are currently for display purposes only and will be implemented in future versions.
+                </div>
               </div>
             )}
 
