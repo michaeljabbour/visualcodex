@@ -235,6 +235,112 @@
   color: #c53030;
 }
 
+/* Settings cards for General tab */
+.settings-card {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e1e4e8;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.settings-card-header {
+  padding: 0.75rem 1.25rem;
+  background-color: #f1f2f3;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.settings-card-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.settings-card-content {
+  padding: 1.25rem;
+}
+
+.settings-field {
+  margin-bottom: 1.25rem;
+}
+
+.settings-field:last-child {
+  margin-bottom: 0;
+}
+
+.settings-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.field-description {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.input-with-button {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.browse-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.browse-button:hover {
+  background-color: #2980b9;
+}
+
+.settings-select {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background-color: white;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: auto;
+}
+
+.checkbox-field label {
+  margin-bottom: 0;
+  display: inline;
+}
+
+.checkbox-field .field-description {
+  margin-top: 0.25rem;
+  margin-left: 1.5rem;
+}
+
+.settings-note {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #ebf8ff;
+  border-radius: 4px;
+  color: #2b6cb0;
+  font-size: 0.875rem;
+  border-left: 3px solid #3182ce;
+}
+
 /* No providers message */
 .no-providers {
   text-align: center;

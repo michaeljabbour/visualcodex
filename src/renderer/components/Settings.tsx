@@ -172,7 +172,84 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
             {activeSection === 'general' && (
               <div className="settings-section">
                 <h3>General Settings</h3>
-                <p>General settings will be implemented in future versions.</p>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Application Preferences</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="settings-field">
+                      <label>Default Project Directory</label>
+                      <div className="input-with-button">
+                        <input 
+                          type="text" 
+                          placeholder="/path/to/projects" 
+                          disabled 
+                          value="/home/projects"
+                        />
+                        <button className="browse-button">Browse</button>
+                      </div>
+                      <div className="field-description">
+                        The default directory to open when browsing for projects
+                      </div>
+                    </div>
+                    
+                    <div className="settings-field">
+                      <label>Editor Font Size</label>
+                      <select className="settings-select" disabled>
+                        <option>12px</option>
+                        <option>14px</option>
+                        <option selected>16px</option>
+                        <option>18px</option>
+                        <option>20px</option>
+                      </select>
+                      <div className="field-description">
+                        Font size used in the editor and response areas
+                      </div>
+                    </div>
+                    
+                    <div className="settings-field checkbox-field">
+                      <input type="checkbox" id="auto-save" disabled checked />
+                      <label htmlFor="auto-save">Auto-save changes</label>
+                      <div className="field-description">
+                        Automatically save changes when executing commands
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Command Execution</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="settings-field">
+                      <label>Default Timeout (seconds)</label>
+                      <input 
+                        type="number" 
+                        min="10" 
+                        max="300" 
+                        disabled 
+                        value="60"
+                      />
+                      <div className="field-description">
+                        Maximum time to wait for command execution
+                      </div>
+                    </div>
+                    
+                    <div className="settings-field checkbox-field">
+                      <input type="checkbox" id="show-command-output" disabled checked />
+                      <label htmlFor="show-command-output">Show command output in real-time</label>
+                      <div className="field-description">
+                        Display command output as it's generated
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-note">
+                  Note: These settings are currently for display purposes only and will be implemented in future versions.
+                </div>
               </div>
             )}
 
