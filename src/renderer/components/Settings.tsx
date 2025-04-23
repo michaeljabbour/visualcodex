@@ -13,8 +13,15 @@ interface ApiProvider {
   key: string;
 }
 
+interface TestStatus {
+  [key: string]: {
+    status: 'idle' | 'testing' | 'success' | 'error';
+    message?: string;
+  };
+}
+
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<string>('api');
+  const [activeSection, setActiveSection] = useState<string>('api');
   const [providers, setProviders] = useState<Record<string, string>>({});
   const [newProvider, setNewProvider] = useState<ApiProvider>({ name: '', key: '' });
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -24,6 +31,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
   const [saveMessageType, setSaveMessageType] = useState<'success' | 'error'>('success');
   const [defaultModel, setDefaultModel] = useState<string>('');
   const [modelList, setModelList] = useState<string[]>(DEFAULT_MODELS);
+  const [showAddNew, setShowAddNew] = useState<boolean>(false);
+  const [testStatus, setTestStatus] = useState<TestStatus>({});
 
   useEffect(() => {
     // Load settings when component mounts or when modal is opened
@@ -146,6 +155,40 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
       ...providers,
       [providerName]: apiKey
     });
+    
+    if (testStatus[providerName]) {
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { status: 'idle' }
+      });
+    }
+  };
+  
+  const handleTestConnection = async (providerName: string, apiKey: string) => {
+    setTestStatus({
+      ...testStatus,
+      [providerName]: { status: 'testing' }
+    });
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { 
+          status: 'success',
+          message: 'Connection successful!'
+        }
+      });
+    } catch (error) {
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { 
+          status: 'error',
+          message: 'Connection failed. Please check your API key.'
+        }
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -158,122 +201,280 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
           <button className="close-button" onClick={onClose}>×</button>
         </div>
         <div className="settings-body">
-          <nav className="settings-sidebar">
-            <button
-              className={activeTab === 'general' ? 'active' : ''}
-              onClick={() => setActiveTab('general')}
+          <div className="settings-sidebar">
+            <button 
+              className={activeSection === 'general' ? 'active' : ''} 
+              onClick={() => setActiveSection('general')}
             >
               General
             </button>
-            <button
-              className={activeTab === 'api' ? 'active' : ''}
-              onClick={() => setActiveTab('api')}
+            <button 
+              className={activeSection === 'api' ? 'active' : ''} 
+              onClick={() => setActiveSection('api')}
             >
               API Keys
             </button>
-            <button
-              className={activeTab === 'theme' ? 'active' : ''}
-              onClick={() => setActiveTab('theme')}
+            <button 
+              className={activeSection === 'theme' ? 'active' : ''} 
+              onClick={() => setActiveSection('theme')}
             >
               Theme
             </button>
-            <button
-              className={activeTab === 'about' ? 'active' : ''}
-              onClick={() => setActiveTab('about')}
+            <button 
+              className={activeSection === 'about' ? 'active' : ''} 
+              onClick={() => setActiveSection('about')}
             >
               About
             </button>
-          </nav>
-          <div className="settings-content">
-          {isLoading ? (
-            <div className="settings-loading">Loading settings...</div>
-          ) : loadError ? (
-            <div className="settings-error">{loadError}</div>
-          ) : (
-            <>
-              {activeTab === 'general' && (
-                <div className="settings-section">
-                  <h3>General Settings</h3>
-                  <div className="general-entry">
-                    <label htmlFor="default-model">Default Model</label>
-                    <select
-                      id="default-model"
-                      value={defaultModel}
-                      onChange={(e) => setDefaultModel(e.target.value)}
-                    >
-                      {modelList.length === 0 && (
-                        <option value="" disabled>No models available</option>
-                      )}
-                      {modelList.map((model) => (
-                        <option key={model} value={model}>{model} {model === defaultModel ? '(Current)' : ''}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+          </div>
 
-          {activeTab === 'api' && (
-            <div className="settings-section">
-              <h3>API Providers</h3>
-              
-              {Object.entries(providers).map(([provider, apiKey]) => (
-                <div key={provider} className="api-provider-entry">
-                  <div className="provider-name">{provider}</div>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => handleProviderKeyChange(provider, e.target.value)}
-                    placeholder="API Key"
-                  />
+          <div className="settings-content">
+            {isLoading ? (
+              <div className="settings-loading">Loading settings...</div>
+            ) : loadError ? (
+              <div className="settings-error">{loadError}</div>
+            ) : (
+              <>
+                {activeSection === 'general' && (
+                  <div className="settings-section">
+                    <h3>General Settings</h3>
+                    
+                    <div className="settings-card">
+                      <div className="settings-card-header">
+                        <h4>Application Preferences</h4>
+                      </div>
+                      <div className="settings-card-content">
+                        <div className="settings-field">
+                          <label>Default Model</label>
+                          <select
+                            className="settings-select"
+                            value={defaultModel}
+                            onChange={(e) => setDefaultModel(e.target.value)}
+                          >
+                            {modelList.length === 0 && (
+                              <option value="" disabled>No models available</option>
+                            )}
+                            {modelList.map((model) => (
+                              <option key={model} value={model}>{model} {model === defaultModel ? '(Current)' : ''}</option>
+                            ))}
+                          </select>
+                          <div className="field-description">
+                            The model to use for generating responses
+                          </div>
+                        </div>
+                        
+                        <div className="settings-field">
+                          <label>Default Project Directory</label>
+                          <div className="input-with-button">
+                            <input 
+                              type="text" 
+                              placeholder="/path/to/projects" 
+                              disabled 
+                              value="/home/projects"
+                            />
+                            <button className="browse-button">Browse</button>
+                          </div>
+                          <div className="field-description">
+                            The default directory to open when browsing for projects
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="settings-card">
+                      <div className="settings-card-header">
+                        <h4>Command Execution</h4>
+                      </div>
+                      <div className="settings-card-content">
+                        <div className="settings-field checkbox-field">
+                          <input type="checkbox" id="show-command-output" disabled checked />
+                          <label htmlFor="show-command-output">Show command output in real-time</label>
+                          <div className="field-description">
+                            Display command output as it's generated
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="settings-note">
+                      Note: Some settings are currently for display purposes only and will be implemented in future versions.
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeSection === 'api' && (
+              <div className="settings-section">
+                <div className="section-header">
+                  <h3>API Providers</h3>
                   <button 
-                    className="remove-button"
-                    onClick={() => handleRemoveProvider(provider)}
+                    className="add-new-button"
+                    onClick={() => setShowAddNew(!showAddNew)}
                   >
-                    <span>×</span> Remove
+                    {showAddNew ? 'Cancel' : '+ Add New'}
                   </button>
                 </div>
-              ))}
-              
-              <div className="add-provider">
-                <h4>Add New Provider</h4>
-                <div className="add-provider-form">
-                  <input
-                    type="text"
-                    value={newProvider.name}
-                    onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
-                    placeholder="Provider Name (e.g., OpenAI, Gemini)"
-                  />
-                  <input
-                    type="password"
-                    value={newProvider.key}
-                    onChange={(e) => setNewProvider({ ...newProvider, key: e.target.value })}
-                    placeholder="API Key"
-                  />
-                  <button onClick={handleAddProvider}><span>+</span> Add Provider</button>
+                
+                {showAddNew && (
+                  <div className="provider-card add-provider-card">
+                    <div className="provider-card-content">
+                      <div className="provider-field">
+                        <label>Provider Name:</label>
+                        <input
+                          type="text"
+                          value={newProvider.name}
+                          onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
+                          placeholder="e.g., OpenAI, Gemini"
+                        />
+                      </div>
+                      <div className="provider-field">
+                        <label>API Key:</label>
+                        <input
+                          type="password"
+                          value={newProvider.key}
+                          onChange={(e) => setNewProvider({ ...newProvider, key: e.target.value })}
+                          placeholder="Enter API Key"
+                        />
+                      </div>
+                    </div>
+                    <div className="provider-card-actions">
+                      <button 
+                        onClick={handleAddProvider}
+                        disabled={!newProvider.name || !newProvider.key}
+                      >
+                        Add Provider
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {Object.entries(providers).map(([provider, apiKey]) => (
+                  <div key={provider} className="provider-card">
+                    <div className="provider-card-content">
+                      <div className="provider-field">
+                        <label>Provider:</label>
+                        <div className="provider-name">{provider}</div>
+                      </div>
+                      <div className="provider-field">
+                        <label>API Key:</label>
+                        <input
+                          type="password"
+                          value={apiKey}
+                          onChange={(e) => handleProviderKeyChange(provider, e.target.value)}
+                          placeholder="API Key"
+                        />
+                      </div>
+                      {testStatus[provider] && testStatus[provider].status !== 'idle' && (
+                        <div className={`test-status ${testStatus[provider].status}`}>
+                          {testStatus[provider].status === 'testing' && 'Testing connection...'}
+                          {testStatus[provider].status === 'success' && testStatus[provider].message}
+                          {testStatus[provider].status === 'error' && testStatus[provider].message}
+                        </div>
+                      )}
+                    </div>
+                    <div className="provider-card-actions">
+                      <button 
+                        className="test-button"
+                        onClick={() => handleTestConnection(provider, apiKey)}
+                        disabled={testStatus[provider]?.status === 'testing'}
+                      >
+                        {testStatus[provider]?.status === 'testing' ? 'Testing...' : 'Test Connection'}
+                      </button>
+                      <button 
+                        className="remove-button"
+                        onClick={() => handleRemoveProvider(provider)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {Object.keys(providers).length === 0 && !showAddNew && (
+                  <div className="no-providers">
+                    <p>No API providers configured. Click "Add New" to add a provider.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'theme' && (
+              <div className="settings-section">
+                <h3>Theme Settings</h3>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Appearance</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="settings-field">
+                      <label>Theme Mode</label>
+                      <div className="theme-selector">
+                        <button className="theme-option active">
+                          <div className="theme-preview light-theme"></div>
+                          <span>Light</span>
+                        </button>
+                        <button className="theme-option">
+                          <div className="theme-preview dark-theme"></div>
+                          <span>Dark</span>
+                        </button>
+                        <button className="theme-option">
+                          <div className="theme-preview system-theme"></div>
+                          <span>System</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-note">
+                  Note: These theme settings are currently for display purposes only and will be implemented in future versions.
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'theme' && (
-            <div className="settings-section">
-              <h3>Theme Settings</h3>
-              <p>Theme settings will be implemented in future versions.</p>
-            </div>
-          )}
-
-          {activeTab === 'about' && (
-            <div className="settings-section">
-              <h3>About VisualCodex</h3>
-              <p>VisualCodex is an Electron-based GUI for open-codex.</p>
-              <p>Version: 0.1.0</p>
-              <p>Based on open-codex by ymichael.</p>
-            </div>
-          )}
+            {activeSection === 'about' && (
+              <div className="settings-section">
+                <h3>About VisualCodex</h3>
+                
+                <div className="settings-card">
+                  <div className="settings-card-content">
+                    <div className="about-logo">
+                      <div className="app-logo">VC</div>
+                      <h4>VisualCodex</h4>
+                    </div>
+                    
+                    <div className="about-info">
+                      <p className="about-description">
+                        VisualCodex is an Electron-based GUI for open-codex.
+                      </p>
+                      
+                      <div className="version-info">
+                        <div className="version-item">
+                          <span className="version-label">Version:</span>
+                          <span className="version-value">0.1.0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Credits</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="credits-section">
+                      <p>Based on open-codex by ymichael.</p>
+                      <p>Created by MJ Jabbour</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
         <div className="settings-footer">
           {saveMessage && <div className={`save-message ${saveMessageType === 'error' ? 'error' : ''}`}>{saveMessage}</div>}
