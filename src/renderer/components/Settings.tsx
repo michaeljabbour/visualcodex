@@ -441,9 +441,71 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
             {activeSection === 'about' && (
               <div className="settings-section">
                 <h3>About VisualCodex</h3>
-                <p>VisualCodex is an Electron-based GUI for open-codex.</p>
-                <p>Version: 0.1.0</p>
-                <p>Based on open-codex by ymichael.</p>
+                
+                <div className="settings-card">
+                  <div className="settings-card-content">
+                    <div className="about-logo">
+                      <div className="app-logo">VC</div>
+                      <h4>VisualCodex</h4>
+                    </div>
+                    
+                    <div className="about-info">
+                      <p className="about-description">
+                        VisualCodex is an Electron-based GUI for open-codex.
+                      </p>
+                      
+                      <div className="version-info">
+                        <div className="version-item">
+                          <span className="version-label">Version:</span>
+                          <span className="version-value">0.1.0</span>
+                        </div>
+                        <div className="version-item">
+                          <span className="version-label">Build:</span>
+                          <span className="version-value">2025.04.23</span>
+                        </div>
+                        <div className="version-item">
+                          <span className="version-label">Electron:</span>
+                          <span className="version-value">28.1.0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Credits</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <div className="credits-section">
+                      <p>Based on open-codex by ymichael.</p>
+                      <p>Created by MJ Jabbour</p>
+                    </div>
+                    
+                    <div className="credits-section">
+                      <h5>Built with</h5>
+                      <ul className="credits-list">
+                        <li>Electron</li>
+                        <li>React</li>
+                        <li>TypeScript</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>Legal</h4>
+                  </div>
+                  <div className="settings-card-content">
+                    <p>© 2025 VisualCodex. All rights reserved.</p>
+                    <div className="legal-links">
+                      <a href="#" className="legal-link">Privacy Policy</a>
+                      <a href="#" className="legal-link">Terms of Service</a>
+                      <a href="#" className="legal-link">License</a>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

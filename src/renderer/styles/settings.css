@@ -523,6 +523,112 @@
   text-align: center;
 }
 
+/* About tab specific styles */
+.about-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.app-logo {
+  width: 60px;
+  height: 60px;
+  background-color: #3498db;
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.75rem;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.about-logo h4 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.about-info {
+  margin-bottom: 1rem;
+}
+
+.about-description {
+  margin-bottom: 1.5rem;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.version-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.version-item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.version-label {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.version-value {
+  color: #2c3e50;
+}
+
+.credits-section {
+  margin-bottom: 1.5rem;
+}
+
+.credits-section:last-child {
+  margin-bottom: 0;
+}
+
+.credits-section h5 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #4a5568;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.credits-section p {
+  margin: 0.5rem 0;
+  color: #4a5568;
+}
+
+.credits-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #4a5568;
+}
+
+.credits-list li {
+  margin-bottom: 0.25rem;
+}
+
+.legal-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.legal-link {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.legal-link:hover {
+  text-decoration: underline;
+}
+
 /* No providers message */
 .no-providers {
   text-align: center;
