@@ -1,0 +1,167 @@
+/* Main theme colors */
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --secondary-color: #2c3e50;
+  --secondary-light: #34495e;
+  --text-color: #333333;
+  --text-light: #7f8c8d;
+  --background-color: #f5f5f5;
+  --background-light: #ffffff;
+  --border-color: #dddddd;
+  --success-color: #2ecc71;
+  --success-hover: #27ae60;
+  --warning-color: #f39c12;
+  --error-color: #e74c3c;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* Additional theme variables */
+  --accent-color: #3498db;
+  --accent-hover: #2980b9;
+  --accent-light: #5dade2;
+  
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --bg-highlight: #e8f4fc;
+  
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-inverse: #ffffff;
+  
+  --input-bg: #ffffff;
+  --input-border: #dddddd;
+  --input-focus-border: #3498db;
+}
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Button styles */
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  background-color: var(--text-light);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Input styles */
+input, textarea, select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Utility classes */
+.text-success {
+  color: var(--success-color);
+}
+
+.text-warning {
+  color: var(--warning-color);
+}
+
+.text-error {
+  color: var(--error-color);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 180px;
+  }
+  
+  button {
+    padding: 0.4rem 0.8rem;
+    font-size: 13px;
+  }
+}
