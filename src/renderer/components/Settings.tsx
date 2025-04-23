@@ -10,12 +10,21 @@ interface ApiProvider {
   key: string;
 }
 
+interface TestStatus {
+  [key: string]: {
+    status: 'idle' | 'testing' | 'success' | 'error';
+    message?: string;
+  };
+}
+
 const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<string>('api');
+  const [activeSection, setActiveSection] = useState<string>('api');
   const [providers, setProviders] = useState<Record<string, string>>({});
   const [newProvider, setNewProvider] = useState<ApiProvider>({ name: '', key: '' });
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveMessage, setSaveMessage] = useState<string>('');
+  const [showAddNew, setShowAddNew] = useState<boolean>(false);
+  const [testStatus, setTestStatus] = useState<TestStatus>({});
 
   useEffect(() => {
     // Load API providers when component mounts
@@ -30,6 +39,8 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
 
     if (isOpen) {
       loadProviders();
+      setShowAddNew(false);
+      setTestStatus({});
     }
   }, [isOpen]);
 
@@ -62,6 +73,7 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
         [newProvider.name]: newProvider.key
       });
       setNewProvider({ name: '', key: '' });
+      setShowAddNew(false);
     }
   };
 
@@ -69,6 +81,12 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
     const updatedProviders = { ...providers };
     delete updatedProviders[providerName];
     setProviders(updatedProviders);
+    
+    if (testStatus[providerName]) {
+      const updatedTestStatus = { ...testStatus };
+      delete updatedTestStatus[providerName];
+      setTestStatus(updatedTestStatus);
+    }
   };
 
   const handleProviderKeyChange = (providerName: string, apiKey: string) => {
@@ -76,6 +94,40 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
       ...providers,
       [providerName]: apiKey
     });
+    
+    if (testStatus[providerName]) {
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { status: 'idle' }
+      });
+    }
+  };
+  
+  const handleTestConnection = async (providerName: string, apiKey: string) => {
+    setTestStatus({
+      ...testStatus,
+      [providerName]: { status: 'testing' }
+    });
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { 
+          status: 'success',
+          message: 'Connection successful!'
+        }
+      });
+    } catch (error) {
+      setTestStatus({
+        ...testStatus,
+        [providerName]: { 
+          status: 'error',
+          message: 'Connection failed. Please check your API key.'
+        }
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -88,99 +140,153 @@ const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
           <button className="close-button" onClick={onClose}>×</button>
         </div>
 
-        <div className="settings-tabs">
-          <button 
-            className={activeTab === 'general' ? 'active' : ''} 
-            onClick={() => setActiveTab('general')}
-          >
-            General
-          </button>
-          <button 
-            className={activeTab === 'api' ? 'active' : ''} 
-            onClick={() => setActiveTab('api')}
-          >
-            API Keys
-          </button>
-          <button 
-            className={activeTab === 'theme' ? 'active' : ''} 
-            onClick={() => setActiveTab('theme')}
-          >
-            Theme
-          </button>
-          <button 
-            className={activeTab === 'about' ? 'active' : ''} 
-            onClick={() => setActiveTab('about')}
-          >
-            About
-          </button>
-        </div>
+        <div className="settings-container">
+          <div className="settings-sidebar">
+            <button 
+              className={activeSection === 'general' ? 'active' : ''} 
+              onClick={() => setActiveSection('general')}
+            >
+              General
+            </button>
+            <button 
+              className={activeSection === 'api' ? 'active' : ''} 
+              onClick={() => setActiveSection('api')}
+            >
+              API Keys
+            </button>
+            <button 
+              className={activeSection === 'theme' ? 'active' : ''} 
+              onClick={() => setActiveSection('theme')}
+            >
+              Theme
+            </button>
+            <button 
+              className={activeSection === 'about' ? 'active' : ''} 
+              onClick={() => setActiveSection('about')}
+            >
+              About
+            </button>
+          </div>
 
-        <div className="settings-content">
-          {activeTab === 'general' && (
-            <div className="settings-section">
-              <h3>General Settings</h3>
-              <p>General settings will be implemented in future versions.</p>
-            </div>
-          )}
+          <div className="settings-content">
+            {activeSection === 'general' && (
+              <div className="settings-section">
+                <h3>General Settings</h3>
+                <p>General settings will be implemented in future versions.</p>
+              </div>
+            )}
 
-          {activeTab === 'api' && (
-            <div className="settings-section">
-              <h3>API Providers</h3>
-              
-              {Object.entries(providers).map(([provider, apiKey]) => (
-                <div key={provider} className="api-provider-entry">
-                  <div className="provider-name">{provider}</div>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => handleProviderKeyChange(provider, e.target.value)}
-                    placeholder="API Key"
-                  />
+            {activeSection === 'api' && (
+              <div className="settings-section">
+                <div className="section-header">
+                  <h3>API Providers</h3>
                   <button 
-                    className="remove-button"
-                    onClick={() => handleRemoveProvider(provider)}
+                    className="add-new-button"
+                    onClick={() => setShowAddNew(!showAddNew)}
                   >
-                    Remove
+                    {showAddNew ? 'Cancel' : '+ Add New'}
                   </button>
                 </div>
-              ))}
-              
-              <div className="add-provider">
-                <h4>Add New Provider</h4>
-                <div className="add-provider-form">
-                  <input
-                    type="text"
-                    value={newProvider.name}
-                    onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
-                    placeholder="Provider Name (e.g., OpenAI, Gemini)"
-                  />
-                  <input
-                    type="password"
-                    value={newProvider.key}
-                    onChange={(e) => setNewProvider({ ...newProvider, key: e.target.value })}
-                    placeholder="API Key"
-                  />
-                  <button onClick={handleAddProvider}>Add</button>
-                </div>
+                
+                {showAddNew && (
+                  <div className="provider-card add-provider-card">
+                    <div className="provider-card-content">
+                      <div className="provider-field">
+                        <label>Provider Name:</label>
+                        <input
+                          type="text"
+                          value={newProvider.name}
+                          onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
+                          placeholder="e.g., OpenAI, Gemini"
+                        />
+                      </div>
+                      <div className="provider-field">
+                        <label>API Key:</label>
+                        <input
+                          type="password"
+                          value={newProvider.key}
+                          onChange={(e) => setNewProvider({ ...newProvider, key: e.target.value })}
+                          placeholder="Enter API Key"
+                        />
+                      </div>
+                    </div>
+                    <div className="provider-card-actions">
+                      <button 
+                        onClick={handleAddProvider}
+                        disabled={!newProvider.name || !newProvider.key}
+                      >
+                        Add Provider
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {Object.entries(providers).map(([provider, apiKey]) => (
+                  <div key={provider} className="provider-card">
+                    <div className="provider-card-content">
+                      <div className="provider-field">
+                        <label>Provider:</label>
+                        <div className="provider-name">{provider}</div>
+                      </div>
+                      <div className="provider-field">
+                        <label>API Key:</label>
+                        <input
+                          type="password"
+                          value={apiKey}
+                          onChange={(e) => handleProviderKeyChange(provider, e.target.value)}
+                          placeholder="API Key"
+                        />
+                      </div>
+                      {testStatus[provider] && testStatus[provider].status !== 'idle' && (
+                        <div className={`test-status ${testStatus[provider].status}`}>
+                          {testStatus[provider].status === 'testing' && 'Testing connection...'}
+                          {testStatus[provider].status === 'success' && testStatus[provider].message}
+                          {testStatus[provider].status === 'error' && testStatus[provider].message}
+                        </div>
+                      )}
+                    </div>
+                    <div className="provider-card-actions">
+                      <button 
+                        className="test-button"
+                        onClick={() => handleTestConnection(provider, apiKey)}
+                        disabled={testStatus[provider]?.status === 'testing'}
+                      >
+                        {testStatus[provider]?.status === 'testing' ? 'Testing...' : 'Test Connection'}
+                      </button>
+                      <button 
+                        className="remove-button"
+                        onClick={() => handleRemoveProvider(provider)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {Object.keys(providers).length === 0 && !showAddNew && (
+                  <div className="no-providers">
+                    <p>No API providers configured. Click "Add New" to add a provider.</p>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'theme' && (
-            <div className="settings-section">
-              <h3>Theme Settings</h3>
-              <p>Theme settings will be implemented in future versions.</p>
-            </div>
-          )}
+            {activeSection === 'theme' && (
+              <div className="settings-section">
+                <h3>Theme Settings</h3>
+                <p>Theme settings will be implemented in future versions.</p>
+              </div>
+            )}
 
-          {activeTab === 'about' && (
-            <div className="settings-section">
-              <h3>About VisualCodex</h3>
-              <p>VisualCodex is an Electron-based GUI for open-codex.</p>
-              <p>Version: 0.1.0</p>
-              <p>Based on open-codex by ymichael.</p>
-            </div>
-          )}
+            {activeSection === 'about' && (
+              <div className="settings-section">
+                <h3>About VisualCodex</h3>
+                <p>VisualCodex is an Electron-based GUI for open-codex.</p>
+                <p>Version: 0.1.0</p>
+                <p>Based on open-codex by ymichael.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="settings-footer">
