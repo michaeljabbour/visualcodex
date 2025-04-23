@@ -38,10 +38,10 @@
     }
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/inquirer": "^9.0.7",
     "concurrently": "^8.2.2",
     "css-loader": "^6.9.0",
     "electron": "^29.0.0",
